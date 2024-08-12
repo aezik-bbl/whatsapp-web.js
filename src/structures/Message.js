@@ -45,7 +45,7 @@ class Message extends Base {
          * Indicates if the message has media available for download
          * @type {boolean}
          */
-        this.hasMedia = Boolean(data.mediaKey && data.directPath);
+        this.hasMedia = Boolean(data.directPath);
 
         /**
          * Message content
@@ -434,7 +434,10 @@ class Message extends Base {
         const chatId = typeof chat === 'string' ? chat : chat.id._serialized;
 
         await this.client.pupPage.evaluate(async (msgId, chatId) => {
-            return window.WWebJS.forwardMessage(chatId, msgId);
+            let msg = window.Store.Msg.get(msgId);
+            let chat = await window.WWebJS.getChat(chatId, { getAsModel: false });
+
+            return await chat.forwardMessages([msg]);
         }, this.id._serialized, chatId);
     }
 
